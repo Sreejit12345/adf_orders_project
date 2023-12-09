@@ -495,7 +495,10 @@
 									"userProperties": [],
 									"typeProperties": {
 										"variableName": "schema_name",
-										"value": "orders"
+										"value": {
+											"value": "\"orders\"",
+											"type": "Expression"
+										}
 									}
 								}
 							]

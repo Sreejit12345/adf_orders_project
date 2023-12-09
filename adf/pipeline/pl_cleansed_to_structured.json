@@ -1,0 +1,54 @@
+{
+	"name": "pl_cleansed_to_structured",
+	"properties": {
+		"activities": [
+			{
+				"name": "Data flow1",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "dataflow_cleaned_to_structured",
+						"type": "DataFlowReference",
+						"parameters": {
+							"curr_date": "toString(currentDate('UTC'),'yyyy-MM-dd')",
+							"schema_name": {
+								"value": "'@{pipeline().parameters.schema_name}'",
+								"type": "Expression"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			}
+		],
+		"parameters": {
+			"schema_name": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"curr_folder": {
+				"type": "String"
+			},
+			"array_all_folders": {
+				"type": "Array"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-12-09T06:04:26Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

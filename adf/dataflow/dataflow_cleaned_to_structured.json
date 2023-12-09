@@ -1,0 +1,223 @@
+{
+	"name": "dataflow_cleaned_to_structured",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "AzureDataLakeStorage1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				},
+				{
+					"linkedService": {
+						"referenceName": "AzureDataLakeStorage1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source2"
+				},
+				{
+					"linkedService": {
+						"referenceName": "AzureDataLakeStorage1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source3"
+				},
+				{
+					"linkedService": {
+						"referenceName": "AzureDataLakeStorage1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source4"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "AzureSqlDatabase1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"linkedService": {
+						"referenceName": "AzureSqlDatabase1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink2"
+				},
+				{
+					"linkedService": {
+						"referenceName": "AzureSqlDatabase1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink3"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "derivedColumn3"
+				},
+				{
+					"name": "cast1"
+				},
+				{
+					"name": "join1"
+				},
+				{
+					"name": "derivedColumn4"
+				},
+				{
+					"name": "AlterRow1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     curr_date as string (toString(currentDate('UTC'),'yyyy-MM-dd')),",
+				"     schema_name as string",
+				"}",
+				"source(output(",
+				"          PRODUCT_ID as string,",
+				"          PRODUCT_NAME as string,",
+				"          UNIT_PRICE as string,",
+				"          updated_timestamp as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet',",
+				"     fileSystem: 'cleansed',",
+				"     folderPath: (concat(\"products/\",$curr_date))) ~> source1",
+				"source(output(",
+				"          LATITUDE as string,",
+				"          LONGITUDE as string,",
+				"          STORE_ID as string,",
+				"          STORE_NAME as string,",
+				"          WEB_ADDRESS as string,",
+				"          updated_timestamp as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet',",
+				"     fileSystem: 'cleansed',",
+				"     folderPath: (concat(\"stores/\",$curr_date))) ~> source2",
+				"source(output(",
+				"          ORDER_ID as string,",
+				"          ORDER_DATETIME as string,",
+				"          CUSTOMER_ID as string,",
+				"          ORDER_STATUS as string,",
+				"          STORE_ID as string,",
+				"          order_date as string,",
+				"          updated_timestamp as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet',",
+				"     fileSystem: 'cleansed',",
+				"     folderPath: (concat(\"orders/\",$curr_date))) ~> source3",
+				"source(output(",
+				"          ORDER_ID as short,",
+				"          LINE_ITEM_ID as short,",
+				"          PRODUCT_ID as short,",
+				"          UNIT_PRICE as double,",
+				"          QUANTITY as short,",
+				"          {order_items.txt} as string,",
+				"          {\"UPDATED_TIMESTAMP\"} as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet',",
+				"     fileSystem: 'cleansed',",
+				"     folderPath: (concat(\"order_items/\",$curr_date))) ~> source4",
+				"source1 derive(updated_ts = currentUTC()) ~> derivedColumn1",
+				"source2 derive(updated_ts = currentUTC()) ~> derivedColumn2",
+				"source3 derive(updated_ts = currentUTC()) ~> derivedColumn3",
+				"source4 cast(output(",
+				"          ORDER_ID as string",
+				"     ),",
+				"     errors: true) ~> cast1",
+				"derivedColumn3, derivedColumn4 join(source3@ORDER_ID == cast1@ORDER_ID,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"cast1 derive(SUBTOTAL = UNIT_PRICE*QUANTITY,",
+				"          ORDER_ITEM_ID = toInteger(concat(toString(ORDER_ID),toString(LINE_ITEM_ID)))) ~> derivedColumn4",
+				"join1 alterRow(upsertIf(true())) ~> AlterRow1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: '$schema_name',",
+				"     tableName: 'products',",
+				"     preSQLs: ([\"truncate table orders.products\"]),",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     deletable: false,",
+				"     upsertable: false,",
+				"     truncate: true,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     partitionBy('hash', 1),",
+				"     preCommands: [],",
+				"     postCommands: []) ~> sink1",
+				"derivedColumn2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: '$schema_name',",
+				"     tableName: 'stores',",
+				"     preSQLs: ([\"truncate table orders.stores\"]),",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     deletable: false,",
+				"     upsertable: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     partitionBy('hash', 1),",
+				"     preCommands: [],",
+				"     postCommands: []) ~> sink2",
+				"AlterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: '$schema_name',",
+				"     tableName: 'orders',",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     deletable: false,",
+				"     upsertable: true,",
+				"     keys:['Order_Item_id'],",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          ORDER_ITEM_ID,",
+				"          ORDER_ID = source3@ORDER_ID,",
+				"          ORDER_DATE = order_date,",
+				"          CUSTOMER_ID,",
+				"          ORDER_STATUS,",
+				"          STORE_ID,",
+				"          PRODUCT_ID,",
+				"          UNIT_PRICE,",
+				"          QUANTITY,",
+				"          SUBTOTAL,",
+				"          UPDATED_TIMESTAMP = updated_ts",
+				"     ),",
+				"     preCommands: [],",
+				"     postCommands: []) ~> sink3"
+			]
+		}
+	}
+}

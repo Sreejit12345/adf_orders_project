@@ -1,0 +1,65 @@
+{
+	"name": "dataflow_raw_cleaned_text",
+	"properties": {
+		"folder": {
+			"name": "raw to cleaned"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_txt_datalake_landing",
+						"type": "DatasetReference"
+					},
+					"name": "txt"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "AzureDataLakeStorage1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     file_name as string",
+				"}",
+				"source(output(",
+				"          ORDER_ID as short,",
+				"          LINE_ITEM_ID as short,",
+				"          PRODUCT_ID as short,",
+				"          UNIT_PRICE as double,",
+				"          QUANTITY as short",
+				"     ),",
+				"     allowSchemaDrift: false,",
+				"     validateSchema: true,",
+				"     ignoreNoFilesFound: false,",
+				"     rowUrlColumn: ($file_name)) ~> txt",
+				"txt derive({\"UPDATED_TIMESTAMP\"} = currentTimestamp()) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     fileSystem: 'cleansed',",
+				"     folderPath: (concat(concat(substring($file_name,1,instr($file_name,\".\")-1),'/'),toString(currentDate('UTC'),'yyyy-MM-dd'))),",
+				"     compressionCodec: 'snappy',",
+				"     partitionFileNames:[(concat(substring($file_name,1,instr($file_name,\".\")-1),\".parquet\"))],",
+				"     umask: 0777,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1,",
+				"     partitionBy('hash', 1)) ~> sink1"
+			]
+		}
+	}
+}

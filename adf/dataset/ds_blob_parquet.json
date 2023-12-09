@@ -1,0 +1,54 @@
+{
+	"name": "ds_blob_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"filename": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "blob_datasets"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@dataset().filename",
+					"type": "Expression"
+				},
+				"folderPath": "Customer Orders",
+				"container": "landing"
+			},
+			"compressionCodec": "none"
+		},
+		"schema": [
+			{
+				"name": "ORDER_ID",
+				"type": "UTF8"
+			},
+			{
+				"name": "ORDER_DATETIME",
+				"type": "UTF8"
+			},
+			{
+				"name": "CUSTOMER_ID",
+				"type": "UTF8"
+			},
+			{
+				"name": "ORDER_STATUS",
+				"type": "UTF8"
+			},
+			{
+				"name": "STORE_ID",
+				"type": "UTF8"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

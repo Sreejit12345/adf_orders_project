@@ -1,0 +1,212 @@
+{
+	"name": "dataflow_structured_analytics",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"linkedService": {
+						"referenceName": "AzureSqlDatabase1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source1"
+				},
+				{
+					"linkedService": {
+						"referenceName": "AzureSqlDatabase1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source2"
+				},
+				{
+					"linkedService": {
+						"referenceName": "AzureSqlDatabase1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "source3"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "AzureSqlDatabase1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"linkedService": {
+						"referenceName": "AzureSqlDatabase1",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sink2"
+				}
+			],
+			"transformations": [
+				{
+					"name": "join1"
+				},
+				{
+					"name": "cast1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "join2"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "select2"
+				},
+				{
+					"name": "filter2"
+				},
+				{
+					"name": "aggregate2"
+				}
+			],
+			"scriptLines": [
+				"parameters{",
+				"     schema_name as string",
+				"}",
+				"source(output(",
+				"          ORDER_ITEM_ID as integer,",
+				"          ORDER_ID as integer,",
+				"          ORDER_DATE as string,",
+				"          CUSTOMER_ID as integer,",
+				"          ORDER_STATUS as string,",
+				"          STORE_ID as integer,",
+				"          PRODUCT_ID as integer,",
+				"          UNIT_PRICE as decimal(18,0),",
+				"          QUANTITY as integer,",
+				"          SUBTOTAL as decimal(18,0),",
+				"          UPDATED_TIMESTAMP as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: '$schema_name',",
+				"     tableName: 'orders',",
+				"     isolationLevel: 'READ_UNCOMMITTED') ~> source1",
+				"source(output(",
+				"          PRODUCT_ID as integer,",
+				"          PRODUCT_NAME as string,",
+				"          UNIT_PRICE as decimal(18,0),",
+				"          UPDATED_TIMESTAMP as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: '$schema_name',",
+				"     tableName: 'products',",
+				"     isolationLevel: 'READ_UNCOMMITTED') ~> source2",
+				"source(output(",
+				"          STORE_ID as integer,",
+				"          STORE_NAME as string,",
+				"          LATITUDE as decimal(18,0),",
+				"          LONGITUDE as decimal(18,0),",
+				"          UPDATED_TIMESTAMP as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: '$schema_name',",
+				"     tableName: 'stores',",
+				"     isolationLevel: 'READ_UNCOMMITTED') ~> source3",
+				"source1, cast1 join(source1@PRODUCT_ID == cast1@PRODUCT_ID,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"source2 cast(output(",
+				"          PRODUCT_ID as short",
+				"     ),",
+				"     errors: true) ~> cast1",
+				"join1 select(mapColumn(",
+				"          ORDER_DATE,",
+				"          ORDER_STATUS,",
+				"          SUBTOTAL,",
+				"          PRODUCT_NAME",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 filter(upper(ORDER_STATUS)!=\"CANCELLED\") ~> filter1",
+				"filter1 derive(month_year = concat('20',substring(ORDER_DATE,1,2))+\"-\"+substring(ORDER_DATE,4,3)) ~> derivedColumn1",
+				"derivedColumn1 aggregate(groupBy(PRODUCT_NAME,",
+				"          month_year,",
+				"          ORDER_STATUS),",
+				"     TOTAL_AMOUNT = round(sum(SUBTOTAL),2)) ~> aggregate1",
+				"source1, source3 join(source1@STORE_ID == source3@STORE_ID,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join2",
+				"join2 derive(month_year = concat('20',substring(ORDER_DATE,1,2))+\"-\"+substring(ORDER_DATE,4,3)) ~> derivedColumn2",
+				"derivedColumn2 select(mapColumn(",
+				"          STORE_NAME,",
+				"          LATITUDE,",
+				"          LONGITUDE,",
+				"          ORDER_STATUS,",
+				"          SUBTOTAL,",
+				"          month_year",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select2",
+				"select2 filter(upper(ORDER_STATUS)!=\"CANCELLED\") ~> filter2",
+				"filter2 aggregate(groupBy(STORE_NAME,",
+				"          LATITUDE,",
+				"          LONGITUDE,",
+				"          ORDER_STATUS,",
+				"          month_year),",
+				"     TOTAL_AMOUNT = round(sum(SUBTOTAL),2)) ~> aggregate2",
+				"aggregate1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: '$schema_name',",
+				"     tableName: 'products_orders_monthly',",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     deletable: false,",
+				"     upsertable: false,",
+				"     truncate: true,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     preCommands: ['rm -r /products_orders_monthly/*'],",
+				"     postCommands: []) ~> sink1",
+				"aggregate2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: ($schema_name),",
+				"     tableName: 'stores_orders_monthly',",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     deletable: false,",
+				"     upsertable: false,",
+				"     truncate: true,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     preCommands: ['rm -r /stores_orders_monthly/*'],",
+				"     postCommands: []) ~> sink2"
+			]
+		}
+	}
+}

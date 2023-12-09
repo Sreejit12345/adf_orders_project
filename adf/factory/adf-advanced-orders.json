@@ -1,0 +1,17 @@
+{
+	"name": "adf-advanced-orders",
+	"properties": {
+		"globalParameters": {
+			"environment": {
+				"type": "string",
+				"value": "\"dev\""
+			}
+		}
+	},
+	"location": "southindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "744683b4-aeff-4b7f-b161-9c6081fcca8f",
+		"tenantId": "0a27ebc7-f8a3-45de-bfe7-9872a1c51449"
+	}
+}

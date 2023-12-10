@@ -441,7 +441,13 @@
 						"referenceName": "pl_cleansed_to_structured",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": true
+					"waitOnCompletion": true,
+					"parameters": {
+						"schema_name": {
+							"value": "@variables('schema_name')",
+							"type": "Expression"
+						}
+					}
 				}
 			},
 			{

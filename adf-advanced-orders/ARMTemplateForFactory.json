@@ -63,9 +63,9 @@
 									"source2": {},
 									"source3": {},
 									"source4": {},
-									"sink1": {},
-									"sink2": {},
-									"sink3": {}
+									"sink3": {},
+									"sink4": {},
+									"sink5": {}
 								}
 							},
 							"staging": {},
@@ -1367,21 +1367,21 @@
 								"referenceName": "AzureSqlDatabase1",
 								"type": "LinkedServiceReference"
 							},
-							"name": "sink1"
-						},
-						{
-							"linkedService": {
-								"referenceName": "AzureSqlDatabase1",
-								"type": "LinkedServiceReference"
-							},
-							"name": "sink2"
-						},
-						{
-							"linkedService": {
-								"referenceName": "AzureSqlDatabase1",
-								"type": "LinkedServiceReference"
-							},
 							"name": "sink3"
+						},
+						{
+							"linkedService": {
+								"referenceName": "AzureSqlDatabase1",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink4"
+						},
+						{
+							"linkedService": {
+								"referenceName": "AzureSqlDatabase1",
+								"type": "LinkedServiceReference"
+							},
+							"name": "sink5"
 						}
 					],
 					"transformations": [
@@ -1405,6 +1405,12 @@
 						},
 						{
 							"name": "AlterRow1"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "select2"
 						}
 					],
 					"scriptLines": [
@@ -1483,40 +1489,23 @@
 						"cast1 derive(SUBTOTAL = UNIT_PRICE*QUANTITY,",
 						"          ORDER_ITEM_ID = toInteger(concat(toString(ORDER_ID),toString(LINE_ITEM_ID)))) ~> derivedColumn4",
 						"join1 alterRow(upsertIf(true())) ~> AlterRow1",
-						"derivedColumn1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: '$schema_name',",
-						"     tableName: 'products',",
-						"     preSQLs: ([\"truncate table orders.products\"]),",
-						"     insertable: true,",
-						"     updateable: false,",
-						"     deletable: false,",
-						"     upsertable: false,",
+						"derivedColumn1 select(mapColumn(",
+						"          PRODUCT_ID,",
+						"          PRODUCT_NAME,",
+						"          UNIT_PRICE,",
+						"          updated_ts",
+						"     ),",
 						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     partitionBy('hash', 1),",
-						"     preCommands: [],",
-						"     postCommands: []) ~> sink1",
-						"derivedColumn2 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'table',",
-						"     store: 'sqlserver',",
-						"     schemaName: '$schema_name',",
-						"     tableName: 'stores',",
-						"     preSQLs: ([\"truncate table orders.stores\"]),",
-						"     insertable: true,",
-						"     updateable: false,",
-						"     deletable: false,",
-						"     upsertable: false,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"derivedColumn2 select(mapColumn(",
+						"          STORE_ID,",
+						"          STORE_NAME,",
+						"          LATITUDE,",
+						"          LONGITUDE,",
+						"          updated_ts",
+						"     ),",
 						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError',",
-						"     partitionBy('hash', 1),",
-						"     preCommands: [],",
-						"     postCommands: []) ~> sink2",
+						"     skipDuplicateMapOutputs: true) ~> select2",
 						"AlterRow1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     format: 'table',",
@@ -1543,7 +1532,46 @@
 						"          UPDATED_TIMESTAMP = updated_ts",
 						"     ),",
 						"     preCommands: [],",
-						"     postCommands: []) ~> sink3"
+						"     postCommands: []) ~> sink3",
+						"select2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: ($schema_name),",
+						"     tableName: 'STORES',",
+						"     insertable: true,",
+						"     updateable: false,",
+						"     deletable: false,",
+						"     upsertable: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          STORE_ID,",
+						"          STORE_NAME,",
+						"          LATITUDE,",
+						"          LONGITUDE,",
+						"          UPDATED_TIMESTAMP = updated_ts",
+						"     )) ~> sink4",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'table',",
+						"     store: 'sqlserver',",
+						"     schemaName: ($schema_name),",
+						"     tableName: 'PRODUCTS',",
+						"     insertable: true,",
+						"     updateable: false,",
+						"     deletable: false,",
+						"     upsertable: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          PRODUCT_ID,",
+						"          PRODUCT_NAME,",
+						"          UNIT_PRICE,",
+						"          UPDATED_TIMESTAMP = updated_ts",
+						"     )) ~> sink5"
 					]
 				}
 			},

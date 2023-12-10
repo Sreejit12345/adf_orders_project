@@ -607,7 +607,7 @@
 											"typeProperties": {
 												"variableName": "schema_name",
 												"value": {
-													"value": "\"orders\"",
+													"value": "orders",
 													"type": "Expression"
 												}
 											}

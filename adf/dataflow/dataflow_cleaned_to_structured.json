@@ -81,7 +81,7 @@
 			],
 			"scriptLines": [
 				"parameters{",
-				"     curr_date as string (toString(currentDate('UTC'),'yyyy-MM-dd')),",
+				"     curr_date as string,",
 				"     schema_name as string",
 				"}",
 				"source(output(",

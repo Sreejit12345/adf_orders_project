@@ -39,14 +39,6 @@
 				"type": "string"
 			}
 		},
-		"variables": {
-			"curr_folder": {
-				"type": "String"
-			},
-			"array_all_folders": {
-				"type": "Array"
-			}
-		},
 		"annotations": [],
 		"lastPublishTime": "2023-12-09T06:04:26Z"
 	},

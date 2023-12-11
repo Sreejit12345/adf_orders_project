@@ -605,6 +605,25 @@
 											}
 										}
 									]
+								},
+								{
+									"value": "prod",
+									"activities": [
+										{
+											"name": "Set variable2",
+											"type": "SetVariable",
+											"dependsOn": [],
+											"policy": {
+												"secureOutput": false,
+												"secureInput": false
+											},
+											"userProperties": [],
+											"typeProperties": {
+												"variableName": "schema_name",
+												"value": "orders_prod"
+											}
+										}
+									]
 								}
 							]
 						}
@@ -893,7 +912,7 @@
 									"source2": {},
 									"source3": {},
 									"sink2": {},
-									"sink3": {}
+									"ORDERS": {}
 								}
 							},
 							"staging": {},
@@ -1842,7 +1861,7 @@
 								"referenceName": "AzureSqlDatabase1",
 								"type": "LinkedServiceReference"
 							},
-							"name": "sink3"
+							"name": "ORDERS"
 						}
 					],
 					"transformations": [
@@ -1989,7 +2008,7 @@
 						"     ),",
 						"     format: 'table',",
 						"     store: 'sqlserver',",
-						"     schemaName: '$schema',",
+						"     schemaName: 'ORDERS',",
 						"     tableName: 'stores_orders_monthly',",
 						"     insertable: true,",
 						"     updateable: false,",
@@ -2018,7 +2037,7 @@
 						"     truncate: true,",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     errorHandlingOption: 'stopOnFirstError') ~> sink3"
+						"     errorHandlingOption: 'stopOnFirstError') ~> ORDERS"
 					]
 				}
 			},

@@ -106,7 +106,7 @@
 									"source2": {},
 									"source3": {},
 									"sink2": {},
-									"sink3": {}
+									"ORDERS": {}
 								}
 							},
 							"staging": {},
@@ -641,6 +641,25 @@
 													"value": "orders",
 													"type": "Expression"
 												}
+											}
+										}
+									]
+								},
+								{
+									"value": "prod",
+									"activities": [
+										{
+											"name": "Set variable2",
+											"type": "SetVariable",
+											"dependsOn": [],
+											"policy": {
+												"secureOutput": false,
+												"secureInput": false
+											},
+											"userProperties": [],
+											"typeProperties": {
+												"variableName": "schema_name",
+												"value": "orders_prod"
 											}
 										}
 									]

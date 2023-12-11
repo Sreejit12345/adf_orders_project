@@ -32,14 +32,14 @@
 						"referenceName": "AzureSqlDatabase1",
 						"type": "LinkedServiceReference"
 					},
-					"name": "sink1"
+					"name": "sink2"
 				},
 				{
 					"linkedService": {
 						"referenceName": "AzureSqlDatabase1",
 						"type": "LinkedServiceReference"
 					},
-					"name": "sink2"
+					"name": "sink3"
 				}
 			],
 			"transformations": [
@@ -174,21 +174,6 @@
 				"          ORDER_STATUS,",
 				"          month_year),",
 				"     TOTAL_AMOUNT = round(sum(SUBTOTAL),2)) ~> aggregate2",
-				"aggregate1 sink(allowSchemaDrift: true,",
-				"     validateSchema: false,",
-				"     format: 'table',",
-				"     store: 'sqlserver',",
-				"     schemaName: '$schema',",
-				"     tableName: 'products_orders_monthly',",
-				"     insertable: true,",
-				"     updateable: false,",
-				"     deletable: false,",
-				"     upsertable: false,",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true,",
-				"     errorHandlingOption: 'stopOnFirstError',",
-				"     preCommands: ['rm -r /products_orders_monthly/*'],",
-				"     postCommands: []) ~> sink1",
 				"aggregate2 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'table',",
@@ -199,11 +184,24 @@
 				"     updateable: false,",
 				"     deletable: false,",
 				"     upsertable: false,",
+				"     truncate: true,",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     errorHandlingOption: 'stopOnFirstError',",
-				"     preCommands: ['rm -r /stores_orders_monthly/*'],",
-				"     postCommands: []) ~> sink2"
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink2",
+				"aggregate1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table',",
+				"     store: 'sqlserver',",
+				"     schemaName: ($schema_name),",
+				"     tableName: 'products_orders_monthly',",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     deletable: false,",
+				"     upsertable: false,",
+				"     truncate: true,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink3"
 			]
 		}
 	}

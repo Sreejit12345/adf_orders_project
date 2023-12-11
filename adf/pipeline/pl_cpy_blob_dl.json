@@ -508,6 +508,25 @@
 									}
 								}
 							]
+						},
+						{
+							"value": "prod",
+							"activities": [
+								{
+									"name": "Set variable2",
+									"type": "SetVariable",
+									"dependsOn": [],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "schema_name",
+										"value": "orders_prod"
+									}
+								}
+							]
 						}
 					]
 				}

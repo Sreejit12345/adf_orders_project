@@ -39,7 +39,7 @@
 						"referenceName": "AzureSqlDatabase1",
 						"type": "LinkedServiceReference"
 					},
-					"name": "sink3"
+					"name": "ORDERS"
 				}
 			],
 			"transformations": [
@@ -186,7 +186,7 @@
 				"     ),",
 				"     format: 'table',",
 				"     store: 'sqlserver',",
-				"     schemaName: '$schema',",
+				"     schemaName: 'ORDERS',",
 				"     tableName: 'stores_orders_monthly',",
 				"     insertable: true,",
 				"     updateable: false,",
@@ -215,7 +215,7 @@
 				"     truncate: true,",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     errorHandlingOption: 'stopOnFirstError') ~> sink3"
+				"     errorHandlingOption: 'stopOnFirstError') ~> ORDERS"
 			]
 		}
 	}

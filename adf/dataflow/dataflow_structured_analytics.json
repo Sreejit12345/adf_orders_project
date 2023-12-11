@@ -206,7 +206,7 @@
 				"     ),",
 				"     format: 'table',",
 				"     store: 'sqlserver',",
-				"     schemaName: '$schema',",
+				"     schemaName: 'ORDERS',",
 				"     tableName: 'products_orders_monthly',",
 				"     insertable: true,",
 				"     updateable: false,",

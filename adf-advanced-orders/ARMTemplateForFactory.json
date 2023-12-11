@@ -1994,6 +1994,7 @@
 						"     updateable: false,",
 						"     deletable: false,",
 						"     upsertable: false,",
+						"     truncate: true,",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     errorHandlingOption: 'stopOnFirstError') ~> sink2",
@@ -2013,6 +2014,7 @@
 						"     updateable: false,",
 						"     deletable: false,",
 						"     upsertable: false,",
+						"     truncate: true,",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     errorHandlingOption: 'stopOnFirstError') ~> sink3"

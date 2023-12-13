@@ -614,6 +614,7 @@
 					},
 					{
 						"name": "set azure sql schema names per env",
+						"description": "added comment",
 						"type": "Switch",
 						"dependsOn": [],
 						"userProperties": [],

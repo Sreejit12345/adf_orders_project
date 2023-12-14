@@ -4,6 +4,7 @@
 		"activities": [
 			{
 				"name": "read files lookup",
+				"description": "lkp to config",
 				"type": "Lookup",
 				"dependsOn": [
 					{

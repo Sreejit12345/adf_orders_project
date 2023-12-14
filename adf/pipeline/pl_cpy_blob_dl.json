@@ -43,6 +43,7 @@
 			},
 			{
 				"name": "iterate_lookup_file",
+				"description": "i love arshia for each",
 				"type": "ForEach",
 				"dependsOn": [
 					{

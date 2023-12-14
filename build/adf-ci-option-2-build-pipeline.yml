@@ -16,7 +16,7 @@ variables:
   resourceGroup: 'rg_adf_advanced'                      # Use the resource group for the development data factory
   dataFactory: 'adf-advanced-orders'                       # Use your development data factory name
   PackageFolder: 'build'                                  # Use the GIT folder under which you have the package files
-  adfRootFolder: 'ADF1'                                       # Use the GIT folder under which you have the ADF resources. If it's root leave as blank
+  adfRootFolder: 'adf'                                       # Use the GIT folder under which you have the ADF resources. If it's root leave as blank
 
 steps:
 
